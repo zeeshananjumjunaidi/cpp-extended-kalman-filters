@@ -57,12 +57,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 	 *  Initialization
 	 ****************************************************************************/
 	if (!is_initialized_) {
-		/**
-		TODO:
-		  * Initialize the state ekf_.x_ with the first measurement.
-		  * Create the covariance matrix.
-		  * Remember: you'll need to convert radar from polar to cartesian coordinates.
-		*/
+		// State Vector
 		ekf_.x_ = VectorXd(4);
 		ekf_.x_ << 1, 1, 1, 1;
 
@@ -71,12 +66,10 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
 		// first measurement
 		if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-			/**
-			Convert radar from polar to cartesian coordinates and initialize state.
-			*/
-			float rho = measurement_pack.raw_measurements_[0]; // range
-			float phi = measurement_pack.raw_measurements_[1]; // bearing
-			float rho_dot = measurement_pack.raw_measurements_[2]; // velocity of rho
+			//Convert radar from polar to cartesian coordinates and initialize state.
+			float rho = measurement_pack.raw_measurements_[0];		// range
+			float phi = measurement_pack.raw_measurements_[1];		// bearing
+			float rho_dot = measurement_pack.raw_measurements_[2];	// velocity of rho
 
 			// Coordinates convertion from polar to cartesian
 			float x = rho		* cos(phi);
@@ -109,7 +102,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 		// Save the initial timestamp for dt calculation
 		previous_timestamp_ = measurement_pack.timestamp_;
 
-		// Done initializing, no need to predict or update
+		// Done initializing, no need to predict or update for this measurement
 		is_initialized_ = true;
 		return;
 	}
@@ -118,7 +111,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 	 *  Prediction
 	 ****************************************************************************/
 
-	 // Calculate the timestep between measurements in seconds
+	 // Calculate the timestep between previous and current measurements in seconds
 	double dt = (measurement_pack.timestamp_ - previous_timestamp_);
 	dt /= 1000000.0; // convert microseconds to s
 	previous_timestamp_ = measurement_pack.timestamp_;
@@ -162,6 +155,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 		ekf_.Update(measurement_pack.raw_measurements_);
 	}
 	// print the output
-	cout << "x_ = " << ekf_.x_ << endl;
-	cout << "P_ = " << ekf_.P_ << endl;
+	cout << "x_ \n " << ekf_.x_ << endl;
+	cout << "P_ \n " << ekf_.P_ << endl;
 }

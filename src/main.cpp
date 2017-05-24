@@ -14,14 +14,9 @@ using Eigen::VectorXd;
 using std::vector;
 
 void check_arguments(int argc, char* argv[]) {
-
-
-
-
 	string usage_instructions = "Usage instructions: ";
 	usage_instructions += argv[0];
 	usage_instructions += " path/to/input.txt output.txt";
-
 	bool has_valid_args = false;
 
 	// make sure the user has provided input and output files
@@ -57,11 +52,8 @@ void check_files(ifstream& in_file, string& in_name,
 }
 //, char* argv[]
 int main(int argc, char* argv[]) {
-	//char* input = "C:\\Users\\ZEESH\\Documents\\Udacity\\SDCND\\Term2\\Assignments\\KalmanFilter\\CarND-Extended-Kalman-Filter-Project\\build\\Debug\\obj_pose-laser-radar-synthetic-input.txt";
-	////obj_pose-laser-radar-synthetic-input.txt
-	//char* output = "C:\\Users\\ZEESH\\Documents\\Udacity\\SDCND\\Term2\\Assignments\\KalmanFilter\\CarND-Extended-Kalman-Filter-Project\\build\\Debug\\output.txt";
-	//char* argv[] = { input,output };
-	//argc = 3;
+
+	//Validating arguments
 	check_arguments(argc, argv);
 
 	string in_file_name_ = argv[1];
@@ -77,8 +69,8 @@ int main(int argc, char* argv[]) {
 
 	string line;
 
-	// prep the measurement packages (each line represents a measurement at a
-	// timestamp)
+	// reading data
+	// each line is representing a measurement (Lidar or Radar) per timestamp
 	while (getline(in_file_, line)) {
 
 		string sensor_type;
@@ -139,15 +131,14 @@ int main(int argc, char* argv[]) {
 	// Create a Fusion EKF instance
 	FusionEKF fusionEKF;
 
-	// used to compute the RMSE later
+	//for computing the RMSE later
 	vector<VectorXd> estimations;
 	vector<VectorXd> ground_truth;
 
 	//Call the EKF-based fusion
 	size_t N = measurement_pack_list.size();
 	for (size_t k = 0; k < N; ++k) {
-		// start filtering from the second frame (the speed is unknown in the first
-		// frame)
+		//Send each measurement for processing
 		fusionEKF.ProcessMeasurement(measurement_pack_list[k]);
 
 		// output the estimation
@@ -182,7 +173,9 @@ int main(int argc, char* argv[]) {
 
 	// compute the accuracy (RMSE)
 	Tools tools;
-	cout << "Accuracy - RMSE:" << endl << tools.CalculateRMSE(estimations, ground_truth) << endl;
+	VectorXd rmse = tools.CalculateRMSE(estimations, ground_truth);
+	cout << "Accuracy - RMSE:" << endl << "\tpx: " << rmse(0) << ", py: "
+		<< rmse(1) << ", vx: " << rmse(2) << ", vy: " << rmse(3) << endl;
 
 	// close files
 	if (out_file_.is_open()) {
@@ -195,12 +188,15 @@ int main(int argc, char* argv[]) {
 
 	return 0;
 }
-/////
+
+
+//Rubic Requirement for Accuracy RMSE:
 //Your px, py, vx, and vy RMSE should be
 //less than or equal to the values [.11, .11, 0.52, 0.52]. 
-////
-//Accuracy - RMSE:
-//0.139973
-//0.665512
-//0.603878
-//1.62373
+//////////////////////////////////////////////////////////
+//1st test values [.13, .66, 0.60, 0.62]. 
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+//optimized test values [.13, .66, 0.60, 0.62]. 
+//////////////////////////////////////////////////////////
+//optimized test values [.09, .08, 0.45, 0.44]. [best]
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
